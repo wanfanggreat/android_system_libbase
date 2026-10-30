@@ -700,5 +700,17 @@ std::string Dirname(std::string_view path) {
 }
 #endif
 
+// ABI compatibility for prebuilt vendor blobs built against the pre-string_view
+// libbase API. Keep these out of the public header so existing callers don't
+// get a std::string/string_view overload ambiguity.
+bool WriteStringToFd(const std::string& content, borrowed_fd fd);
+bool WriteStringToFd(const std::string& content, int fd);
+bool WriteStringToFd(const std::string& content, borrowed_fd fd) {
+  return WriteStringToFd(std::string_view(content), fd);
+}
+bool WriteStringToFd(const std::string& content, int fd) {
+  return WriteStringToFd(std::string_view(content), borrowed_fd(fd));
+}
+
 }  // namespace base
 }  // namespace android
